@@ -1,5 +1,4 @@
-```markdown
-# 🚀 LeetCode GitHub Updater - GitPusher
+## 🚀 LeetCode GitHub Updater - GitPusher
 
 ### Automatically track and push your solved LeetCode problems to a GitHub repository!
 
