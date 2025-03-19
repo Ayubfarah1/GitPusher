@@ -11,16 +11,14 @@ with open("config.json", "r") as config_file:
 # API URL that gives us the solved LeetCode problems
 LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ibrah342" 
 
-
-# Get GitHub details from the config file
-GITHUB_USERNAME = config["github_username"]  # Your GitHub username
-GITHUB_REPO = config["github_repo"]  # The repository where we store solved problems
-GITHUB_TOKEN = config["github_token"]  # Token used to authenticate GitHub commands
+# Get GitHub details from the config file (UPDATED to match GitHub Secrets)
+GITHUB_USERNAME = config["GIT_USERNAME"]  # Your GitHub username
+GITHUB_REPO = config["GIT_REPO"]  # The repository where we store solved problems
+GITHUB_TOKEN = config["GIT_TOKEN"]  # Token used to authenticate GitHub commands
 
 # Fetch solved problems from LeetCode API
 response = requests.get(LEETCODE_API_URL)
 print("Raw API response:", response.text)
-
 
 if response.status_code == 200:
     data = response.json()
@@ -35,7 +33,7 @@ else:
 
 # Check if we have an existing solved problems file using operating system
 if os.path.exists("solved_problems.json"):  # Check if the file already exists 
-    with open("solved_problems.json", "r") as file:  # Open the file in read mode "r" means read
+    with open("solved_problems.json", "r") as file:  # Open the file in read mode
         solved_data = json.load(file)  # Load existing solved problems from the file
 else:
     solved_data = {"solved": []}  # If the file doesn't exist, create an empty list
@@ -55,7 +53,7 @@ if not new_problems:  # If no new problems were found
     print("No new problems to update.")  # Print message and exit
     exit()
 
-#  Add new solved problems to our JSON file
+# Add new solved problems to our JSON file
 for problem in new_problems:
     solved_data["solved"].append({
         "title": problem["title"],  # Use title as identifier
@@ -63,13 +61,13 @@ for problem in new_problems:
         "date_solved": datetime.now().strftime("%Y-%m-%d")  # Store today's date
     })
 
-#  Save the updated list of solved problems back into the file
+# Save the updated list of solved problems back into the file
 with open("solved_problems.json", "w") as file:  # Open file in write mode
     json.dump(solved_data, file, indent=4)  # Save the new data (formatted nicely)
 
 print(f"Added {len(new_problems)} new problems.")  # Print how many new problems were saved
 
-# 7️Create a commit message summarizing the update
+# Create a commit message summarizing the update
 commit_message = f"Updated solved problems ({len(new_problems)} new)"  # Example: "Updated solved problems (3 new)"
 
 # Push the changes to GitHub automatically

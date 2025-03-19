@@ -1,0 +1,46 @@
+name: Update LeetCode Activity
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions
+
+jobs:
+  update:
+    runs-on: ubuntu-latest  # Runs on a Linux environment
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Clones your repo to the GitHub runner
+
+      - name: Set Up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'  # Use Python 3.9 (you can change this version if needed)
+
+      - name: Install Dependencies
+        run: pip install requests  # Install required Python package
+
+      - name: Create Config File  # Generates config.json securely (Secret stored in GitHub)
+        run: |
+          cat <<EOF > config.json
+          {
+            "GIT_USERNAME": "${{ secrets.GIT_USERNAME }}",
+            "GIT_REPO": "${{ secrets.GIT_REPO }}",
+            "GIT_TOKEN": "${{ secrets.GIT_TOKEN }}"
+          }
+          EOF
+
+      - name: Run Script
+        run: python main.py  # Executes your Python script
+
+      - name: Push Changes to GitHub
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+          git remote set-url origin https://x-access-token:${GIT_TOKEN}@github.com/${{ secrets.GIT_USERNAME }}/${{ secrets.GIT_REPO }}.git
+          git add solved_problems.json
+          git commit -m "Auto-update solved problems [$(date)]" || echo "No changes to commit"
+          git push origin main || echo "Push failed, possibly no changes to push"
