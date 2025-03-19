@@ -2,7 +2,7 @@ name: Update LeetCode Activity
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+    - cron: '*/30 * * * *' # Runs daily every 30 minutes
   workflow_dispatch:  # Allows manual trigger from GitHub Actions
 
 jobs:
