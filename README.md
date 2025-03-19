@@ -95,12 +95,11 @@ python main.py
 
 - ✔️ Ensure you generated a classic GitHub token with "repo" permissions.
 - ✔️ Double-check your `GIT_TOKEN` value in GitHub Secrets.
-```
 
 
----
 
-## 📧 Contact Me
+
+# 📧 Contact Me
 
 If you have any questions, suggestions, or just want to connect, feel free to reach out!  
 
