@@ -5,8 +5,10 @@ import subprocess  # Runs system commands like Git
 from datetime import datetime  # Gets today's date
 
 # Load settings from config.json (this file contains your GitHub username, repo, and token)
-with open("config.json", "r") as config_file:
-    config = json.load(config_file)  # Read and convert JSON data into a Python dictionary
+script_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_dir, "config.json")
+with open(config_path, "r") as config_file: # Read and convert JSON data into a Python dictionary
+    config = json.load(config_file)
 
 # API URL that gives us the solved LeetCode problems
 LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ibrah342" 
@@ -39,14 +41,14 @@ else:
     solved_data = {"solved": []}  # If the file doesn't exist, create an empty list
 
 # Avoid duplicates by storing IDs of problems we already saved
-existing_titles = {problem["title"] for problem in solved_data["solved"]}
+existing_submissions = {(problem["title"], problem["date_solved"]) for problem in solved_data["solved"]}
 
-print("Existing problem IDs:", existing_titles)  # Print the existing problem IDs
+print("Existing problem IDs:", existing_submissions)  # Print the existing problem IDs
 print("Fetched problems:", solved_problems)  # Print what the script is actually seeing
 
 new_problems = [
     problem for problem in solved_problems
-    if problem["title"] not in existing_titles  # Check by title instead of ID
+    if (problem["title"], datetime.now().strftime("%Y-%m-%d")) not in existing_submissions
 ]
 
 if not new_problems:  # If no new problems were found
@@ -70,9 +72,23 @@ print(f"Added {len(new_problems)} new problems.")  # Print how many new problems
 # Create a commit message summarizing the update
 commit_message = f"Updated solved problems ({len(new_problems)} new)"  # Example: "Updated solved problems (3 new)"
 
-# Push the changes to GitHub automatically
-subprocess.run(["git", "add", "solved_problems.json"])  # Stage the file for commit
-subprocess.run(["git", "commit", "-m", commit_message])  # Commit the changes with a message
-subprocess.run(["git", "push", "origin", "main"])  # Push to GitHub (main branch)
+# # Push the changes to GitHub automatically
+# subprocess.run(["git", "add", "solved_problems.json"])  # Stage the file for commit
+# subprocess.run(["git", "commit", "-m", commit_message])  # Commit the changes with a message
+# subprocess.run(["git", "push", "origin", "main"])  # Push to GitHub (main branch)
+
+# Add with error check
+subprocess.run(["git", "add", "solved_problems.json"], check=True)
+
+# Try committing and show output
+commit = subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, text=True)
+print("Commit stdout:", commit.stdout)
+print("Commit stderr:", commit.stderr)
+
+# Push to GitHub and show output
+push = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+print("Push stdout:", push.stdout)
+print("Push stderr:", push.stderr)
+
 
 print("Successfully updated GitHub!")  # Print success message

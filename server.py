@@ -1,14 +1,20 @@
 from flask import Flask, jsonify
+from flask_cors import CORS  
 import subprocess
+import os
 
 app = Flask(__name__)
+CORS(app)  # ✅ Allow cross-origin requests
 
 @app.route('/update', methods=['POST'])
 def update_github():
     try:
         # Run your script to fetch and push updates
-        result = subprocess.run(["/opt/homebrew/bin/python3.10", "main.py"], capture_output=True, text=True)
-        
+        main_script_path = os.path.join(os.path.dirname(__file__), "main.py")
+        result = subprocess.run(["/opt/homebrew/bin/python3.10", main_script_path], capture_output=True, text=True)
+
+        print(result.stderr)  # Add this for debugging
+
         if result.returncode == 0:
             return jsonify({"message": "GitHub updated successfully!"}), 200
         else:
