@@ -99,6 +99,11 @@
             "title": "Squares of a Sorted Array",
             "difficulty": "Unknown",
             "date_solved": "2025-03-19"
+        },
+        {
+            "title": "Roman to Integer",
+            "difficulty": "Unknown",
+            "date_solved": "2025-03-24"
         }
     ]
 }
