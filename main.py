@@ -1,22 +1,16 @@
-import requests  # Used to get data from LeetCode API
-import json  # Used to read and write JSON files
-import os  # Helps check if files exist
-import subprocess  # Runs system commands like Git
-from datetime import datetime  # Gets today's date
+import requests
+import json
+import os
+import subprocess
+from datetime import datetime
 
-# Load settings from config.json (this file contains your GitHub username, repo, and token)
-script_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(script_dir, "config.json")
-with open(config_path, "r") as config_file: # Read and convert JSON data into a Python dictionary
-    config = json.load(config_file)
+# Load GitHub credentials from environment variables
+GITHUB_USERNAME = os.getenv("GIT_USERNAME")
+GITHUB_REPO = os.getenv("GIT_REPO")
+GITHUB_TOKEN = os.getenv("GIT_TOKEN")
 
-# API URL that gives us the solved LeetCode problems
-LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ayubfarah123" 
-
-# Get GitHub details from the config file (UPDATED to match GitHub Secrets)
-GITHUB_USERNAME = config["GIT_USERNAME"]  # Your GitHub username
-GITHUB_REPO = config["GIT_REPO"]  # The repository where we store solved problems
-GITHUB_TOKEN = config["GIT_TOKEN"]  # Token used to authenticate GitHub commands
+# LeetCode API URL (update username if needed)
+LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ayubfarah123"
 
 # Fetch solved problems from LeetCode API
 response = requests.get(LEETCODE_API_URL)
@@ -24,71 +18,67 @@ print("Raw API response:", response.text)
 
 if response.status_code == 200:
     data = response.json()
-    
-    if isinstance(data, dict):  # If API returns a dictionary
-        solved_problems = data.get("recentSubmissions", [])  # Get the 'recentSubmissions' list
+    if isinstance(data, dict):
+        solved_problems = data.get("recentSubmissions", [])
     else:
-        solved_problems = data  # If already a list, use it directly
+        solved_problems = data
 else:
-    print(f" Error fetching problems: {response.status_code}")
+    print(f"Error fetching problems: {response.status_code}")
     exit()
 
-# Check if we have an existing solved problems file using operating system
-if os.path.exists("solved_problems.json"):  # Check if the file already exists 
-    with open("solved_problems.json", "r") as file:  # Open the file in read mode
-        solved_data = json.load(file)  # Load existing solved problems from the file
+# Check existing solved problems
+if os.path.exists("solved_problems.json"):
+    with open("solved_problems.json", "r") as file:
+        solved_data = json.load(file)
 else:
-    solved_data = {"solved": []}  # If the file doesn't exist, create an empty list
+    solved_data = {"solved": []}
 
-# Avoid duplicates by storing IDs of problems we already saved
 existing_submissions = {(problem["title"], problem["date_solved"]) for problem in solved_data["solved"]}
 
-print("Existing problem IDs:", existing_submissions)  # Print the existing problem IDs
-print("Fetched problems:", solved_problems)  # Print what the script is actually seeing
+print("Existing problem IDs:", existing_submissions)
+print("Fetched problems:", solved_problems)
 
+# Filter new problems
 new_problems = [
     problem for problem in solved_problems
     if (problem["title"], datetime.now().strftime("%Y-%m-%d")) not in existing_submissions
 ]
 
-if not new_problems:  # If no new problems were found
-    print("No new problems to update.")  # Print message and exit
+if not new_problems:
+    print("No new problems to update.")
     exit()
 
-# Add new solved problems to our JSON file
+# Add new problems
 for problem in new_problems:
     solved_data["solved"].append({
-        "title": problem["title"],  # Use title as identifier
-        "difficulty": "Unknown",  # API doesn't return difficulty
-        "date_solved": datetime.now().strftime("%Y-%m-%d")  # Store today's date
+        "title": problem["title"],
+        "difficulty": "Unknown",
+        "date_solved": datetime.now().strftime("%Y-%m-%d")
     })
 
-# Save the updated list of solved problems back into the file
-with open("solved_problems.json", "w") as file:  # Open file in write mode
-    json.dump(solved_data, file, indent=4)  # Save the new data (formatted nicely)
+# Save updated JSON
+with open("solved_problems.json", "w") as file:
+    json.dump(solved_data, file, indent=4)
 
-print(f"Added {len(new_problems)} new problems.")  # Print how many new problems were saved
+print(f"Added {len(new_problems)} new problems.")
 
-# Create a commit message summarizing the update
-commit_message = f"Updated solved problems ({len(new_problems)} new)"  # Example: "Updated solved problems (3 new)"
+# Git commit and push
+commit_message = f"Updated solved problems ({len(new_problems)} new)"
 
-# # Push the changes to GitHub automatically
-# subprocess.run(["git", "add", "solved_problems.json"])  # Stage the file for commit
-# subprocess.run(["git", "commit", "-m", commit_message])  # Commit the changes with a message
-# subprocess.run(["git", "push", "origin", "main"])  # Push to GitHub (main branch)
-
-# Add with error check
 subprocess.run(["git", "add", "solved_problems.json"], check=True)
 
-# Try committing and show output
 commit = subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, text=True)
 print("Commit stdout:", commit.stdout)
 print("Commit stderr:", commit.stderr)
 
-# Push to GitHub and show output
+# Set Git remote URL with token
+repo_name = GITHUB_REPO.split("/")[-1]
+remote_url = f"https://Ayubfarah1:AccessKey@github.com/Ayubfarah1/https://github.com/Ayubfarah1/GitPusher.git"
+subprocess.run(["git", "remote", "set-url", "origin", remote_url])
+
+# Push to GitHub
 push = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
 print("Push stdout:", push.stdout)
 print("Push stderr:", push.stderr)
 
-
-print("Successfully updated GitHub!")  # Print success message
+print("✅ Successfully updated GitHub!")

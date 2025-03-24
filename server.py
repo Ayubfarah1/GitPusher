@@ -11,7 +11,7 @@ def update_github():
     try:
         # Run your script to fetch and push updates
         main_script_path = os.path.join(os.path.dirname(__file__), "main.py")
-        result = subprocess.run(["/opt/homebrew/bin/python3.10", main_script_path], capture_output=True, text=True)
+        result = subprocess.run(["python", main_script_path], capture_output=True, text=True)
 
         print(result.stderr)  # Add this for debugging
 
