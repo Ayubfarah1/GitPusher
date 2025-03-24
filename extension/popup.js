@@ -3,7 +3,7 @@ document.getElementById("updateButton").addEventListener("click", async () => {
     statusElement.textContent = "Updating...";
 
     try {
-        let response = await fetch("http://127.0.0.1:5001/update", {
+        let response = await fetch("https://gitpusher.onrender.com/update", {
             method: "POST"
         });
 
