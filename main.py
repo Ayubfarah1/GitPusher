@@ -11,7 +11,7 @@ with open(config_path, "r") as config_file: # Read and convert JSON data into a 
     config = json.load(config_file)
 
 # API URL that gives us the solved LeetCode problems
-LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ibrah342" 
+LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ayubfarah123" 
 
 # Get GitHub details from the config file (UPDATED to match GitHub Secrets)
 GITHUB_USERNAME = config["GIT_USERNAME"]  # Your GitHub username
