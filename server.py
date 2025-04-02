@@ -11,18 +11,16 @@ def update_github():
     try:
         main_script = os.path.join(os.path.dirname(__file__), "main.py")
         result = subprocess.run(["python", main_script], capture_output=True, text=True)
-        print(result.stdout)
-        print(result.stderr)
         if result.returncode == 0:
             return jsonify({"message": "GitHub updated successfully!"}), 200
         else:
             return jsonify({"error": "Script failed", "details": result.stderr}), 500
     except Exception as e:
         return jsonify({"error": "Server error", "details": str(e)}), 500
-    
 @app.route('/update', methods=['GET'])
-def update_info():
-    return "Use POST request to trigger GitHub update.", 405
+def info():
+    return jsonify({"message": "Use POST to update"}), 405
+
 
 
 

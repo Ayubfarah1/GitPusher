@@ -16,6 +16,14 @@ LEETCODE_API_URL = "https://leetcode-api-faisalshohag.vercel.app/ayubfarah123"
 response = requests.get(LEETCODE_API_URL)
 print("Raw API response:", response.text)
 
+if os.path.exists("config.json"):
+    with open("config.json") as f:
+        config = json.load(f)
+        GITHUB_USERNAME = config.get("GIT_USERNAME")
+        GITHUB_REPO = config.get("GIT_REPO")
+        GITHUB_TOKEN = config.get("GIT_TOKEN")
+
+
 if response.status_code == 200:
     data = response.json()
     if isinstance(data, dict):
@@ -73,7 +81,7 @@ print("Commit stderr:", commit.stderr)
 
 # Set Git remote URL with token
 repo_name = GITHUB_REPO.split("/")[-1]
-remote_url = f"https://Ayubfarah1:AccessKey@github.com/Ayubfarah1/https://github.com/Ayubfarah1/GitPusher.git"
+remote_url = f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@github.com/{GITHUB_USERNAME}/{repo_name}.git"
 subprocess.run(["git", "remote", "set-url", "origin", remote_url])
 
 # Push to GitHub
